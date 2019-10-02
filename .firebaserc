@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "cisc387-app"
+  },
+  "targets": {
+    "cisc387-app": {
+      "hosting": {
+        "connect": [
+          "connect-all-387"
+        ]
+      }
+    }
   }
 }
