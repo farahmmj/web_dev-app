@@ -9,6 +9,8 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">-->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
   <style>
     body {
       font-family: Arial, Helvetica, sans-serif;
@@ -114,13 +116,19 @@
     <p>This is a test page for our app</p>
   </div>
 
+  <form action="?" method="POST">
+    <div class="g-recaptcha" data-sitekey="your_site_key"></div>
+    <br />
+    <input type="submit" value="Submit">
+  </form>
+
   <div class="container">
-    <form action="/action_page.php">
+    <form>
       <div class="row">
         <h2 style="text-align:center">Login with Phone Number</h2>
         <!--<input type="text" name="fname" placeholder="First Name" required>
         <input type="text" name="lname" placeholder="Last Name" required>-->
-        <input type="text" name="Phone" placeholder="Phone #" required>
+        <input id="phone-num" type="text" name="phone" placeholder="Phone #" required>
         <input id="signin" type="submit" value="Login">
       </div>
   </div>
@@ -138,19 +146,25 @@
       }
     });
 
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('g-recaptcha');
+    var recaptchaResponse = grecaptcha.getResponse(window.recaptchaWidgetId);
 
-    var phoneNumber = getPhoneNumberFromUserInput();
-    var appVerifier = window.recaptchaVerifier;
-    firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
-      .then(function (confirmationResult) {
-        // SMS sent. Prompt user to type the code from the message, then sign the
-        // user in with confirmationResult.confirm(code).
-        window.confirmationResult = confirmationResult;
-      }).catch(function (error) {
-        // Error; SMS not sent
-        // ...
-      });
+    $(signin).on("click", function () {
+      var phoneNumber = document.getElementById("phone-num").value;
+      if (phoneNumber) {
+        var appVerifier = window.recaptchaVerifier;
+        firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+          .then(function (confirmationResult) {
+            // SMS sent. Prompt user to type the code from the message, then sign the
+            // user in with confirmationResult.confirm(code).
+            window.confirmationResult = confirmationResult;
+          }).catch(function (error) {
+            // Error; SMS not sent
+            grecaptcha.reset(window.recaptchaWidgetId);
+          });
+      }
+    });
+    //var phoneNumber = getPhoneNumberFromUserInput();
   </script>
   </div>
 
